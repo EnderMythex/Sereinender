@@ -575,8 +575,10 @@ impl State {
 
             // Moving a window leaves its contents unchanged. On Windows the move runs in a modal
             // loop that waits for each synchronous paint and its vsync, so the window trailed the
-            // cursor by a frame per move (Serein patch, see SEREIN-PATCH.md).
-            WindowEvent::Moved(_) if cfg!(target_os = "windows") => {
+            // cursor by a frame per move; on X11 every `ConfigureNotify` of a drag ran a full UI
+            // pass and a vsync-blocked present while the window manager moved the window
+            // (Sereinender patch, see SEREINENDER-PATCH.md). macOS keeps eframe's own handling.
+            WindowEvent::Moved(_) if !cfg!(target_os = "macos") => {
                 // Sample the final placement/monitor even when no client input follows the move.
                 // Scheduling through egui keeps this out of the synchronous modal paint loop.
                 self.egui_ctx
@@ -850,22 +852,13 @@ impl State {
     ///
     /// Returns `true` if the event was sent to egui.
     pub fn on_mouse_motion(&mut self, delta: (f64, f64)) -> bool {
-        // Serein reads no raw motion. On Windows it keeps arriving while the OS moves the window,
-        // and every queued event made the next frame request another one; each of those frames
-        // waited for vsync inside the modal move loop and held the window a refresh behind the
-        // cursor (Serein patch, see SEREIN-PATCH.md).
-        if cfg!(target_os = "windows") {
-            return false;
-        }
-        if !self.is_pointer_in_window() && !self.any_pointer_button_down {
-            return false;
-        }
-
-        self.egui_input.events.push(egui::Event::MouseMoved(Vec2 {
-            x: delta.0 as f32,
-            y: delta.1 as f32,
-        }));
-        true
+        // Sereinender reads no raw motion. It keeps arriving while the OS or window manager moves
+        // the window: the cursor stays inside the moving window, and on Linux the swallowed
+        // release leaves a button "down", so every event requested a full repaint. Each of those
+        // frames waited for vsync and held the window behind the cursor (Sereinender patch, see
+        // SEREINENDER-PATCH.md).
+        let _ = delta;
+        false
     }
 
     /// Returns `true` when the pointer is currently inside the window.
