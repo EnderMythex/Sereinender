@@ -48,9 +48,18 @@ assert(prodNotes.includes('## New Contributors'));
 assert(prodNotes.indexOf('## New Contributors') > prodNotes.indexOf('notification sounds'));
 assert(prodNotes.includes('Release Note Author made their first contribution'));
 
-// Nightly isolation needs the upstream release tags; a fork without them has no history to split.
-const hasReleaseTags = execFileSync('git', ['tag', '--list', 'v1.0.0'], { encoding: 'utf8' }).trim() !== '';
-if (hasReleaseTags) {
+// Nightly isolation is checked against the upstream v1.0.0 tag, which contains the audio commit
+// but not the permissions one; forks with their own tags skip it.
+const ancestor = (commit, ref) => {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', commit, ref], { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+};
+if (ancestor('baec1dfc7b5755b0f063a1ea16d05f81936d0dc0', 'v1.0.0')
+  && !ancestor('eb98a663421d6e142fe0f5f3be6f175a1b95a8e9', 'v1.0.0')) {
   const nightlyNotes = await generateReleaseNotes('nightly', { preset: 'conventionalcommits' }, releaseNotesContext);
   assert(nightlyNotes.includes('category and channel permission settings'));
   assert(!nightlyNotes.includes('notification sounds'));

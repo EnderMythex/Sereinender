@@ -69,10 +69,17 @@ function publishCask() {
     '--field', `sha=${current.sha}`, '--field', 'branch=main',
   ]);
 }
+// GitHub rejects release bodies over 125,000 characters; a first release lists the whole history.
+const MAX_NOTES = 120_000;
+function limitNotes(notes) {
+  if (notes.length <= MAX_NOTES) return notes;
+  const cut = notes.lastIndexOf('\n', MAX_NOTES);
+  return `${notes.slice(0, cut > 0 ? cut : MAX_NOTES)}\n\n_Release notes shortened to fit GitHub's limit; see the commit history for the rest._\n`;
+}
 const conventional = { preset: 'conventionalcommits' };
 const plugins = [
   [require.resolve('@semantic-release/commit-analyzer'), conventional],
-  [{ generateNotes: (config, context) => generateReleaseNotes(channel, config, context) }, conventional],
+  [{ generateNotes: async (config, context) => limitNotes(await generateReleaseNotes(channel, config, context)) }, conventional],
 ];
 if (plan && channel === 'production') {
   plugins.push(
