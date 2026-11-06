@@ -20,7 +20,7 @@ env:
   RELEASE_CHANNEL: ${{ inputs.channel || 'nightly' }}
 
 concurrency:
-  group: serein-release
+  group: sereinender-release
   cancel-in-progress: false
 
 jobs:
@@ -32,6 +32,7 @@ jobs:
       release: ${{ steps.version.outputs.release }}
       tag: ${{ steps.version.outputs.tag }}
       version: ${{ steps.version.outputs.version }}
+      mac_signing: ${{ steps.mac.outputs.signing }}
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -47,7 +48,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: bun .github/release/release.mjs plan
-      - name: Require Mac signing credentials before building
+      - name: Check for Mac signing credentials
+        id: mac
         if: steps.version.outputs.release == 'true'
         env:
           MACOS_CERTIFICATE_BASE64: ${{ secrets.MACOS_CERTIFICATE_BASE64 }}
@@ -56,10 +58,13 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        # Without every Apple secret the release ships Windows and Linux packages only.
         run: |
+          signing=true
           for name in MACOS_CERTIFICATE_BASE64 MACOS_CERTIFICATE_PASSWORD MACOS_SIGNING_IDENTITY APPLE_ID APPLE_TEAM_ID APPLE_APP_SPECIFIC_PASSWORD; do
-            test -n "${!name}" || { echo "Missing Actions secret: $name"; exit 1; }
+            test -n "${!name}" || { echo "Missing Actions secret $name; skipping the macOS package"; signing=false; }
           done
+          echo "signing=$signing" >> "$GITHUB_OUTPUT"
       - name: Apply planned version to manifests
         if: steps.version.outputs.release == 'true'
         env:
@@ -85,6 +90,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, windows-latest, windows-11-arm]
+        exclude:
+          - os: ${{ needs.prepare.outputs.mac_signing != 'true' && 'macos-latest' || 'none' }}
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
     env:
@@ -118,7 +125,7 @@ jobs:
         run: |
           cargo xtask package
           mkdir release-assets
-          echo "ASSET=serein-$TAG-$RUNNER_OS-$RUNNER_ARCH" >> "$GITHUB_ENV"
+          echo "ASSET=sereinender-$TAG-$RUNNER_OS-$RUNNER_ARCH" >> "$GITHUB_ENV"
       - name: Sign, notarize and verify Mac app
         if: runner.os == 'macOS'
         env:
@@ -128,7 +135,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-        run: bash packaging/macos/sign-release.sh "$PACKAGE_ROOT/Serein.app"
+        run: bash packaging/macos/sign-release.sh "$PACKAGE_ROOT/Sereinender.app"
       - name: Archive Mac package
         if: runner.os == 'macOS'
         run: ditto -c -k --sequesterRsrc "$PACKAGE_ROOT" "release-assets/$ASSET.zip"
@@ -180,7 +187,7 @@ jobs:
           path: .
       - uses: actions/download-artifact@v8.0.1
         with:
-          pattern: serein-*
+          pattern: sereinender-*
           path: release-assets
           merge-multiple: true
       - name: Checksums
@@ -194,7 +201,9 @@ jobs:
 
   repositories:
     needs: [prepare, build, linux, publish]
-    if: needs.prepare.outputs.release == 'true'
+    # Package repositories need GitHub Pages and a signing key; enable with the
+    # DEPLOY_PACKAGE_REPOSITORIES repository variable.
+    if: needs.prepare.outputs.release == 'true' && vars.DEPLOY_PACKAGE_REPOSITORIES == 'true'
     permissions:
       contents: read
       pages: write
@@ -203,6 +212,6 @@ jobs:
     with:
       tag: ${{ needs.prepare.outputs.tag }}
       channel: ${{ inputs.channel || 'nightly' }}
-      base_url: https://viceverse-cz.github.io/Serein
+      base_url: https://endermythex.github.io/Sereinender
       deploy: true
     secrets: inherit

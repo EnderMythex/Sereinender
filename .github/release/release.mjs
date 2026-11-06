@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { appendFileSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { execFileSync } from 'node:child_process';
 import semanticRelease from 'semantic-release';
@@ -15,10 +15,11 @@ assert(['nightly', 'production'].includes(channel), 'Choose nightly or productio
 const planPath = 'target/release-plan.json';
 const plan = mode === 'publish' ? JSON.parse(readFileSync(planPath, 'utf8')) : null;
 if (plan) assert.equal(channel, plan.channel, 'Release channel changed');
-const tapRepo = 'ViceVerse-cz/homebrew-serein';
-const caskPath = 'Casks/serein.rb';
+const tapRepo = 'EnderMythex/homebrew-sereinender';
+const caskPath = 'Casks/sereinender.rb';
 const tapToken = process.env.HOMEBREW_TAP_TOKEN;
-if (plan) assert(tapToken, 'HOMEBREW_TAP_TOKEN is required to publish the Homebrew cask');
+// The Homebrew cask is optional: forks without a tap token publish the release alone.
+if (plan && !tapToken) console.log('HOMEBREW_TAP_TOKEN is not set; the Homebrew cask will not be updated');
 
 function checkTapAccess() {
   const push = execFileSync('gh', ['api', `repos/${tapRepo}`, '--jq', '.permissions.push'], {
@@ -37,12 +38,17 @@ function releaseExists() {
   }
 }
 const resumed = plan !== null && releaseExists();
-if (plan && !resumed) checkTapAccess();
+if (plan && !resumed && tapToken) checkTapAccess();
 
 // The cask lives in its own tap repository so users do not clone this one. The tap file is the
 // single source of truth; releases only rewrite its version and checksum.
 function publishCask() {
-  const asset = `release-assets/serein-${plan.gitTag}-macOS-ARM64.zip`;
+  if (!tapToken) return;
+  const asset = `release-assets/sereinender-${plan.gitTag}-macOS-ARM64.zip`;
+  if (!existsSync(asset)) {
+    console.log('No signed macOS package in this release; the Homebrew cask was not updated');
+    return;
+  }
   const checksum = createHash('sha256').update(readFileSync(asset)).digest('hex');
   const gh = args => execFileSync('gh', args, {
     encoding: 'utf8', env: { ...process.env, GH_TOKEN: tapToken },
@@ -79,7 +85,7 @@ if (plan && channel === 'production') {
       successComment: false,
       failComment: false,
       releasedLabels: false,
-      releaseNameTemplate: 'Serein <%= nextRelease.version %>',
+      releaseNameTemplate: 'Sereinender <%= nextRelease.version %>',
     }],
   );
 }
@@ -126,7 +132,7 @@ if (mode === 'plan') {
       const assets = readdirSync('release-assets')
         .map(name => `release-assets/${name}`);
       execFileSync('gh', ['release', 'create', plan.gitTag, ...assets,
-        '--target', plan.gitHead, '--title', `Serein ${plan.version}`,
+        '--target', plan.gitHead, '--title', `Sereinender ${plan.version}`,
         '--notes-file', 'target/release-notes.md', '--prerelease', '--latest=false', '--draft'],
       { stdio: 'inherit' });
     }
