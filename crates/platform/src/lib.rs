@@ -44,6 +44,7 @@ pub use login_linux::LoginView;
 
 /// Logical height of the native header the desktop app draws above the login webview.
 pub const LOGIN_HEADER_HEIGHT: f32 = 56.0;
+#[cfg(target_os = "linux")]
 const SERVICE: &str = "cz.viceverse.sereinender";
 /// Credential store service. It keeps the identifier used before the Sereinender rename so
 /// sign-ins saved by earlier builds stay readable and removable.
