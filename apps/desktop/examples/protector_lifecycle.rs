@@ -47,7 +47,10 @@ fn main() {
 			"late history cannot restore a deletion"
 		);
 	}
-	let root = std::env::temp_dir().join(format!("serein-protector-check-{}", std::process::id()));
+	let root = std::env::temp_dir().join(format!(
+		"sereinender-protector-check-{}",
+		std::process::id()
+	));
 	assert!(!root.exists());
 	let mut host = host::ExtensionHost::new(root.clone());
 	let starter = host::starters().unwrap().remove(0);

@@ -2474,7 +2474,7 @@ fn full_panel(
 }
 
 pub(crate) fn profile_opener_id() -> egui::Id {
-	egui::Id::unique("serein-profile-opener")
+	egui::Id::unique("sereinender-profile-opener")
 }
 
 #[derive(Default)]
@@ -4549,7 +4549,7 @@ pub fn synthetic(user: &User, guild: Option<Id>) -> model::UserProfile {
 	let hash = |c: char| c.to_string().repeat(32);
 	model::UserProfile {
         user: user.clone(),
-        username: "serein.preview".into(),
+        username: "sereinender.preview".into(),
         board: Some(vec![model::ProfileGameWidget {
             kind: model::ProfileGameWidgetKind::Favorite,
             games: vec![model::ProfileGame { id: Id(90001), name: Some("Synthetic favorite game".into()), icon: Some(hash('b')), cover: Some(hash('b')), comment: None, tags: vec![] }],

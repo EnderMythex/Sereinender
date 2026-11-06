@@ -366,7 +366,7 @@ impl Desktop {
 							ui.label(
 								ui::design::semibold(
 									ui,
-									ui::i18n::translate("main-restoring-screen-serein"),
+									ui::i18n::translate("main-restoring-screen-sereinender"),
 									16.0,
 								)
 								.color(p.muted),
@@ -398,7 +398,7 @@ impl Desktop {
 					ui.painter().rect_filled(mark, 14, p.accent);
 					ui::icons::paint(
 						ui.painter(),
-						ui::icons::Icon::Serein,
+						ui::icons::Icon::Sereinender,
 						mark.shrink(13.0),
 						p.accent_text,
 					);
@@ -495,7 +495,7 @@ impl Desktop {
 							ui.painter().rect_filled(mark, 6, p.accent);
 							ui::icons::paint(
 								ui.painter(),
-								ui::icons::Icon::Serein,
+								ui::icons::Icon::Sereinender,
 								mark.shrink(5.0),
 								p.accent_text,
 							);
@@ -503,7 +503,7 @@ impl Desktop {
 							ui.label(
 								ui::design::semibold(
 									ui,
-									ui::i18n::translate("main-sign-in-screen-serein"),
+									ui::i18n::translate("main-sign-in-screen-sereinender"),
 									16.0,
 								)
 								.color(p.text_strong),
@@ -669,7 +669,7 @@ impl Desktop {
 						if returning {
 							ui::design::secondary_icon_button(ui, ui::icons::Icon::Plus, label)
 						} else {
-							ui::design::primary_icon_button(ui, ui::icons::Icon::Serein, label)
+							ui::design::primary_icon_button(ui, ui::icons::Icon::Sereinender, label)
 						}
 					})
 					.inner;
@@ -716,7 +716,7 @@ impl Desktop {
 			ui.painter().rect_filled(mark, 13, p.accent);
 			ui::icons::paint(
 				ui.painter(),
-				ui::icons::Icon::Serein,
+				ui::icons::Icon::Sereinender,
 				mark.shrink(11.0),
 				p.accent_text,
 			);
@@ -727,7 +727,7 @@ impl Desktop {
 					ui::i18n::translate_if_key(if returning {
 						"main-sign-in-header-welcome-back"
 					} else {
-						"main-sign-in-header-welcome-to-serein"
+						"main-sign-in-header-welcome-to-sereinender"
 					}),
 					22.0,
 				)
@@ -1073,7 +1073,7 @@ impl Desktop {
 		let p = ui::design::palette(ui);
 		if ui::design::disclosure(
 			ui,
-			&ui::i18n::translate("main-sign-in-disclosures-about-serein"),
+			&ui::i18n::translate("main-sign-in-disclosures-about-sereinender"),
 			self.about_open,
 		)
 		.clicked()

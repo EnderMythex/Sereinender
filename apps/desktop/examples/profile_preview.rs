@@ -483,13 +483,13 @@ fn extension_fixture(
 	),
 	Box<dyn std::error::Error>,
 > {
-	let external = std::env::var_os("SEREIN_PREVIEW_PACKAGE")
+	let external = std::env::var_os("SEREINENDER_PREVIEW_PACKAGE")
 		.map(std::fs::read)
 		.transpose()?;
 	let bytes: &[u8] = match id {
 		"custom-rpc" | "api-proxy" => external
 			.as_deref()
-			.ok_or("Set SEREIN_PREVIEW_PACKAGE to the external plugin package")?,
+			.ok_or("Set SEREINENDER_PREVIEW_PACKAGE to the external plugin package")?,
 		"serein-ocean" => {
 			include_bytes!("../../../extensions/themes/ocean.serein-extension")
 		}
@@ -799,7 +799,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 	let saved = Arc::new(AtomicBool::new(false));
 	let completed = saved.clone();
 	eframe::run_native(
-		"Serein · offline profile preview",
+		"Sereinender · offline profile preview",
 		eframe::NativeOptions {
 			viewport: egui::ViewportBuilder::default()
 				.with_inner_size([width, height])

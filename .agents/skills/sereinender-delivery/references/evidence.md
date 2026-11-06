@@ -1,4 +1,4 @@
-# Serein delivery evidence
+# Sereinender delivery evidence
 
 Read before editing a visible flow or runtime behavior outside `!fast`.
 Instructions-only changes do not need application evidence.

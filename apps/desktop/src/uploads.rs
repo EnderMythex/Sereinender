@@ -1083,7 +1083,8 @@ mod tests {
 	use super::*;
 	#[tokio::test]
 	async fn thumbnails_never_read_selections_larger_than_the_decode_budget() {
-		let dir = std::env::temp_dir().join(format!("serein-preview-cap-{}", std::process::id()));
+		let dir =
+			std::env::temp_dir().join(format!("sereinender-preview-cap-{}", std::process::id()));
 		std::fs::create_dir_all(&dir).unwrap();
 		let path = dir.join("large.png");
 		// Sparse: no disk is written, and a capped preview must not read it either.
@@ -1660,7 +1661,7 @@ mod tests {
 		let runtime = tokio::runtime::Handle::current();
 		let mut uploads = Uploads::default();
 		let path = std::env::temp_dir().join(format!(
-			"serein-drop-{}-{}.txt",
+			"sereinender-drop-{}-{}.txt",
 			std::process::id(),
 			std::time::SystemTime::now()
 				.duration_since(std::time::UNIX_EPOCH)

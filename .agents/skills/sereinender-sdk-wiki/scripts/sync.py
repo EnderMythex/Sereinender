@@ -1,4 +1,4 @@
-"""Generate reviewed wiki pages from an immutable, pushed Serein source commit."""
+"""Generate reviewed wiki pages from an immutable, pushed Sereinender source commit."""
 import argparse
 import posixpath
 import re
@@ -7,8 +7,8 @@ from pathlib import Path
 from urllib.parse import quote, unquote, urlsplit
 
 REPOSITORY = Path(__file__).resolve().parents[4]
-GITHUB = "https://github.com/ViceVerse-cz/Serein"
-WIKI_ORIGINS = {GITHUB + ".wiki.git", "git@github.com:ViceVerse-cz/Serein.wiki.git"}
+GITHUB = "https://github.com/EnderMythex/Sereinender"
+WIKI_ORIGINS = {GITHUB + ".wiki.git", "git@github.com:EnderMythex/Sereinender.wiki.git"}
 SOURCES = (
     "examples/extensions/README.md", "docs/extensions.md", "docs/theme-api.md",
     "docs/extension-sdk-reference.md", "docs/extension-sdk-actions.md",
@@ -183,7 +183,7 @@ def validate_links(generated):
 
 
 def build_pages(sources, revision, status, tracked):
-    notice = f"> **{status}**\n> Source: [Serein `{revision[:12]}`]({GITHUB}/tree/{revision}).\n\n"
+    notice = f"> **{status}**\n> Source: [Sereinender `{revision[:12]}`]({GITHUB}/tree/{revision}).\n\n"
     generated = {}
     guides = {source: {} for source in sources}
     pieces = {}
@@ -211,7 +211,7 @@ def build_pages(sources, revision, status, tracked):
             guides[source].setdefault(old, page + "#" + new)
         return body
 
-    add("Creating-a-Plugin", "Build your first Serein plugin", [(SOURCES[0], None, 1)])
+    add("Creating-a-Plugin", "Build your first Sereinender plugin", [(SOURCES[0], None, 1)])
     add("Creating-a-Theme", "Theme API", [(SOURCES[2], None, 1)])
     add("SDK-Overview", headings(sources[SOURCES[5]])[0][2], [(SOURCES[5], None, 1)])
     add("SDK-Troubleshooting", headings(sources[SOURCES[6]])[0][2], [(SOURCES[6], None, 1)])
@@ -266,8 +266,8 @@ def build_pages(sources, revision, status, tracked):
     resources = "".join(f"- [{title}]({page})\n" for page, (title, _, _) in RESOURCE_SECTIONS.items())
     reference = "- [App data index](SDK-App-Data)\n- [Inputs and events](SDK-Inputs-and-Events)\n- [Outputs and actions](SDK-Outputs-and-Actions)\n- [Panels and storage](SDK-Panels-and-Storage)\n- [Capabilities, ABI and limits](API-and-Security-Reference)\n"
     help_links = "- [Troubleshooting](SDK-Troubleshooting)\n- [Test and package](Testing-and-Packaging)\n- [Publish to the catalog](Publishing-to-the-Community-Catalog)\n"
-    generated["Home.md"] = "# Serein extension SDK\n\nBuild local Wasm plugins and native themes. Start with a working example, then find the resource or action you need.\n\n## Start\n\n" + start + "\n## Choose a task\n\n| Task | Read |\n| --- | --- |\n| Understand how plugins run | [SDK overview](SDK-Overview) |\n| Identify users and relationships | [Users and relationships](SDK-Users-and-Relationships) |\n| Inspect servers, channels or forum threads | [Channels and guilds](SDK-Channels-and-Guilds) |\n| Read loaded messages, attachments, pins or typing | [Messages](SDK-Messages) |\n| Inspect members, roles or presence | [Members and roles](SDK-Members-and-Roles) |\n| Read current call or unread state | [Voice and read state](SDK-Voice-and-Read-State) |\n| Read or propose local preferences | [Settings](SDK-Settings) |\n| Navigate, copy text or propose an action | [Outputs and actions](SDK-Outputs-and-Actions) |\n| Build forms and save plugin state | [Panels and storage](SDK-Panels-and-Storage) |\n| Diagnose an error | [Troubleshooting](SDK-Troubleshooting) |\n\n## Reference\n\n" + reference + "\n## Help\n\n" + help_links + f"\n[SDK examples and source]({GITHUB}/tree/{revision}/examples/extensions)\n\nPlugins cannot directly call Discord, access credentials, open files or use the network. Typed app actions, including messages and calls, require separate capabilities and explicit Apply confirmation.\n"
-    generated["_Sidebar.md"] = "- [Home](Home)\n\n## Start\n\n" + start + "\n## Resources\n\n" + resources + "\n## Reference\n\n" + reference + "\n## Help\n\n" + help_links + f"\n[Serein source]({GITHUB}/tree/{revision})\n"
+    generated["Home.md"] = "# Sereinender extension SDK\n\nBuild local Wasm plugins and native themes. Start with a working example, then find the resource or action you need.\n\n## Start\n\n" + start + "\n## Choose a task\n\n| Task | Read |\n| --- | --- |\n| Understand how plugins run | [SDK overview](SDK-Overview) |\n| Identify users and relationships | [Users and relationships](SDK-Users-and-Relationships) |\n| Inspect servers, channels or forum threads | [Channels and guilds](SDK-Channels-and-Guilds) |\n| Read loaded messages, attachments, pins or typing | [Messages](SDK-Messages) |\n| Inspect members, roles or presence | [Members and roles](SDK-Members-and-Roles) |\n| Read current call or unread state | [Voice and read state](SDK-Voice-and-Read-State) |\n| Read or propose local preferences | [Settings](SDK-Settings) |\n| Navigate, copy text or propose an action | [Outputs and actions](SDK-Outputs-and-Actions) |\n| Build forms and save plugin state | [Panels and storage](SDK-Panels-and-Storage) |\n| Diagnose an error | [Troubleshooting](SDK-Troubleshooting) |\n\n## Reference\n\n" + reference + "\n## Help\n\n" + help_links + f"\n[SDK examples and source]({GITHUB}/tree/{revision}/examples/extensions)\n\nPlugins cannot directly call Discord, access credentials, open files or use the network. Typed app actions, including messages and calls, require separate capabilities and explicit Apply confirmation.\n"
+    generated["_Sidebar.md"] = "- [Home](Home)\n\n## Start\n\n" + start + "\n## Resources\n\n" + resources + "\n## Reference\n\n" + reference + "\n## Help\n\n" + help_links + f"\n[Sereinender source]({GITHUB}/tree/{revision})\n"
     generated = {name: (notice + (text if name == "SDK-App-Data.md" else with_contents(text)) if name != "_Sidebar.md" else text) for name, text in generated.items()}
     generated = {name: text.rstrip() + "\n" for name, text in generated.items()}
     validate_links(generated)
@@ -283,7 +283,7 @@ def pages(revision, status):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source-ref", required=True, help="full immutable commit already pushed to origin")
-    parser.add_argument("--wiki-dir", type=Path, required=True, help="existing Serein wiki clone")
+    parser.add_argument("--wiki-dir", type=Path, required=True, help="existing Sereinender wiki clone")
     parser.add_argument("--status", required=True, help="explicit preview or verified release label")
     parser.add_argument("--check", action="store_true", help="compare generated pages without writing")
     args = parser.parse_args()
@@ -299,7 +299,7 @@ def main():
         if Path(git(directory, "rev-parse", "--show-toplevel")).resolve() != directory:
             raise ValueError("--wiki-dir must name the wiki checkout root")
         if git(directory, "remote", "get-url", "origin") not in WIKI_ORIGINS:
-            raise ValueError("wiki origin must be the existing ViceVerse-cz/Serein.wiki.git remote")
+            raise ValueError("wiki origin must be the existing EnderMythex/Sereinender.wiki.git remote")
         if not args.status.strip() or len(args.status) > 256 or any(ord(c) < 32 for c in args.status):
             raise ValueError("--status must be one nonempty line, at most 256 characters")
         generated = pages(revision, args.status)

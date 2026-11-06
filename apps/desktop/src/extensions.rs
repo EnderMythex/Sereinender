@@ -22,7 +22,7 @@ use sha2::{Digest, Sha256};
 
 /// Generated from `extensions/` and pinned to a merged commit by the catalog workflow.
 const CATALOG_URL: &str =
-	"https://raw.githubusercontent.com/ViceVerse-cz/Serein/main/extensions/catalog.json";
+	"https://raw.githubusercontent.com/EnderMythex/Sereinender/main/extensions/catalog.json";
 const MAX_PACKAGE: usize = 16 * 1024 * 1024;
 const MAX_RECORD: usize = MAX_PACKAGE + 64 * 1024;
 const MAX_CATALOG: usize = 1024 * 1024;
@@ -256,7 +256,7 @@ pub fn demo_check_examples() -> Result<bool, String> {
 			return Err("Theme starter must only supply a valid palette".into());
 		}
 	}
-	let root = std::env::temp_dir().join(format!("serein-theme-check-{}", std::process::id()));
+	let root = std::env::temp_dir().join(format!("sereinender-theme-check-{}", std::process::id()));
 	fs::create_dir(&root).map_err(|_| "Cannot create isolated theme check directory")?;
 	let result = (|| {
 		for starter in self::starters()?
@@ -451,7 +451,7 @@ impl ExtensionHost {
 		let context = self.context.clone();
 		self.active = Some((token, receiver));
 		if std::thread::Builder::new()
-			.name("serein-extension".into())
+			.name("sereinender-extension".into())
 			.spawn(move || {
 				let result = run(&root, job, &gate);
 				let _ = sender.send(result);
@@ -1685,7 +1685,7 @@ mod tests {
 			let mut nonce = [0; 16];
 			getrandom::fill(&mut nonce).unwrap();
 			let path =
-				std::env::temp_dir().join(format!("serein-extension-test-{}", digest(&nonce)));
+				std::env::temp_dir().join(format!("sereinender-extension-test-{}", digest(&nonce)));
 			fs::create_dir(&path).unwrap();
 			Self(path)
 		}

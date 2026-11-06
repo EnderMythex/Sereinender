@@ -1,0 +1,9 @@
+[Flatpak Ref]
+Name=cz.viceverse.sereinender
+Branch=master
+Title=Sereinender
+Comment=Fast, secure and lightweight native Discord client
+Icon=https://endermythex.github.io/Sereinender/icons/sereinender.png
+Url=https://endermythex.github.io/Sereinender/flatpak/repo
+RuntimeRepo=https://flathub.org/repo/flathub.flatpakrepo
+IsRuntime=false

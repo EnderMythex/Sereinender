@@ -1,10 +1,10 @@
-# Build your first Serein plugin
+# Build your first Sereinender plugin
 
 > **Preview SDK — PR #411, not yet released.** The branch adds approved reply,
 > sticker, forward, channel, server, role, moderation and host-mediated media
 > actions. Install a matching host build before using those grants or variants.
 
-A plugin is a function: Serein passes it JSON, it returns JSON, and the host renders
+A plugin is a function: Sereinender passes it JSON, it returns JSON, and the host renders
 native controls or presents an action for the user to apply. Each call gets a fresh
 Wasm instance. Save persistent choices through `storage`, not global variables.
 
@@ -29,7 +29,7 @@ app; return the appropriate output or host action instead.
 Published catalog plugins live in [`extensions/plugins`](../../extensions/plugins) and
 build against this SDK; this workspace holds the SDK and its authoring examples.
 
-You need a Serein source checkout, Rust installed through `rustup`, and Python 3
+You need a Sereinender source checkout, Rust installed through `rustup`, and Python 3
 available as `python`. Run commands in that checkout so Rust uses its pinned
 `rust-toolchain.toml`. Building the native demo also needs the platform build
 prerequisites in the [repository README](../../README.md). No Discord account or
@@ -72,7 +72,7 @@ package stays named `app-toolbox`; the manifest gives the installed plugin its i
 For a separate repository, also copy [`extensions/sdk`](../../extensions/sdk) as `sdk/`,
 [`extensions/pack.py`](../../extensions/pack.py) as `pack.py`, and this directory's
 workspace `Cargo.toml` and `Cargo.lock`. In the copied `Cargo.toml`, add `"sdk"` to
-`members` and set `serein-extension-sdk = { path = "sdk" }`. Remove unused plugin
+`members` and set `sereinender-extension-sdk = { path = "sdk" }`. Remove unused plugin
 members. Dependencies inherit from that workspace.
 After changing workspace members or dependencies, run `cargo check --workspace`
 once in the copied workspace to update its lockfile. Review and commit that
@@ -166,7 +166,7 @@ The SDK also exports `Manifest`, `Action`, `Surface`, `ExtensionKind` and
 the same manifest as above:
 
 ```rust
-use serein_extension_sdk::{
+use sereinender_extension_sdk::{
     Action, Capability, ExtensionKind, Manifest, Surface, serde_json,
 };
 
@@ -217,7 +217,7 @@ Step 2: replace `examples/extensions/app-toolbox/src/lib.rs` with this handler.
 The `show` action matches the manifest above:
 
 ```rust
-use serein_extension_sdk::{AppInvocation, AppOutput, Element, Output};
+use sereinender_extension_sdk::{AppInvocation, AppOutput, Element, Output};
 
 fn handle(input: AppInvocation) -> AppOutput {
     if input.invocation.action != "show" {
@@ -235,7 +235,7 @@ fn handle(input: AppInvocation) -> AppOutput {
         ..Default::default()
     }
 }
-serein_extension_sdk::export!(handle);
+sereinender_extension_sdk::export!(handle);
 ```
 
 - `input.invocation.action` identifies the manifest action.
@@ -266,7 +266,7 @@ to `pack.py`; Cargo will not necessarily write into this example's `target/`.
 Step 4: return to the repository root and start the offline app:
 
 ```powershell
-cargo run --locked -p serein -- --demo
+cargo run --locked -p sereinender -- --demo
 ```
 
 Step 5: in **Settings > Extensions**, import
@@ -295,7 +295,7 @@ Step 6: append this offline test to the tutorial handler:
 ```rust
 #[test]
 fn missing_channel_is_handled() {
-    use serein_extension_sdk::{dispatch_typed, serde_json, AppOutput, Element};
+    use sereinender_extension_sdk::{dispatch_typed, serde_json, AppOutput, Element};
     let bytes = dispatch_typed(br#"{"action":"show"}"#, handle).unwrap();
     let output: AppOutput = serde_json::from_slice(&bytes).unwrap();
     assert!(matches!(&output.output.panel[0], Element::Text { text }
@@ -348,7 +348,7 @@ This check does not test install/enable/disable/reload or account lifecycle.
 Generate Rust API docs with:
 
 ```powershell
-cargo doc --manifest-path examples/extensions/Cargo.toml --locked -p serein-extension-sdk --no-deps
+cargo doc --manifest-path examples/extensions/Cargo.toml --locked -p sereinender-extension-sdk --no-deps
 ```
 
 ## Choose your next step
@@ -447,7 +447,7 @@ retained text and offers local controls without calling Discord. Deleted bodies
 are never supplied to this plugin, written to disk, or recovered from before they
 were loaded. Disable, logout, permission revocation and eviction release them.
 
-Emoji and sticker image fallback is built into Serein; the former Emoji & Sticker
+Emoji and sticker image fallback is built into Sereinender; the former Emoji & Sticker
 Images plugin has been retired. The legacy `image_sharing` capability/output remains
 accepted with its existing activation/grant checks for ABI compatibility and has no
 behavioral effect. Wasm receives no artwork bytes and cannot fetch or send them.
@@ -457,7 +457,7 @@ Activation itself does not require deleted-message access. Granted `appearance`
 can return a [theme object](../../docs/theme-api.md); granted `storage` can restore
 saved choices. Storage is one opaque UTF-8 value, replaced when returned.
 Ocean, Midnight, Rose, Forest and Latte are declarative themes under `extensions/`.
-Authors package compiled bytes; Serein never runs their build scripts.
+Authors package compiled bytes; Sereinender never runs their build scripts.
 
 ## Custom Rich Presence example
 

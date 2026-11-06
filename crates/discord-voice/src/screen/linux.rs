@@ -50,8 +50,8 @@ pub(super) fn timestamp_niri_frames(source: &gst::Element) -> Result<(), &'stati
 }
 
 fn note(event: &str, value: &str) {
-	if std::env::var_os("SEREIN_VOICE_DIAGNOSTICS").is_some_and(|set| set == "1") {
-		eprintln!("[Serein voice Screen] {event}={value}");
+	if std::env::var_os("SEREINENDER_VOICE_DIAGNOSTICS").is_some_and(|set| set == "1") {
+		eprintln!("[Sereinender voice Screen] {event}={value}");
 	}
 }
 
