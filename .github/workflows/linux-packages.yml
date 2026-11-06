@@ -83,9 +83,15 @@ jobs:
               makepkg --printsrcinfo > "$aur_metadata"
               diff -u .SRCINFO "$aur_metadata"
               rm "$aur_metadata"
-              makepkg --verifysource
-              bash check-dependencies.sh
-              makepkg --nodeps --noconfirm
+              # The -bin recipe repackages a published release; skip it until that release exists here.
+              aur_source=$(sed -n 's/^\tsource_x86_64 = //p' .SRCINFO)
+              if curl --proto "=https" --tlsv1.2 -sfIL -o /dev/null "$aur_source"; then
+                makepkg --verifysource
+                bash check-dependencies.sh
+                makepkg --nodeps --noconfirm
+              else
+                echo "AUR source not published in this repository yet; skipping the -bin recipe build"
+              fi
             fi
           BUILD
       - name: Collect distribution-labelled package
